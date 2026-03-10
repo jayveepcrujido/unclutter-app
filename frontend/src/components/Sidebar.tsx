@@ -10,7 +10,8 @@ import {
   LogOut, 
   ChevronLeft, 
   ChevronRight,
-  RefreshCw 
+  RefreshCw,
+  LayoutDashboard 
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -45,7 +46,8 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
   };
 
   const navItems = [
-    { label: 'Current Subscriptions', icon: Mail, href: '/dashboard' },
+    { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+    { label: 'Current Subscriptions', icon: Mail, href: '/subscriptions' },
     { label: 'Pending Confirmations', icon: RefreshCw, href: '/pending' },
     { label: 'Unsubscribed', icon: MailX, href: '/unsubscribed' },
   ];
@@ -53,37 +55,45 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
   return (
     <aside 
       className={cn(
-        "h-screen bg-surface flex flex-col fixed left-0 top-0 z-30 transition-width duration-200 ease-in-out border-r border-[#E2E8F0]",
-        isCollapsed ? "w-[64px]" : "w-[240px]"
+        "h-screen bg-white/80 backdrop-blur-xl flex flex-col fixed left-0 top-0 z-30 transition-width duration-200 ease-in-out border-r border-border-sidebar shadow-soft",
+        isCollapsed ? "w-[64px]" : "w-[250px]"
       )}
     >
-      {/* Collapse Toggle Button */}
+      {/* External Collapse Toggle Button */}
       <button 
         onClick={toggleCollapse}
         suppressHydrationWarning={true}
-        className="absolute -right-[14px] top-8 w-[28px] h-[28px] rounded-full bg-white shadow-soft flex items-center justify-center text-text-muted hover:border-[#6366F1] hover:text-[#6366F1] transition-all duration-150 z-40 border border-[#E2E8F0]"
+        className={cn(
+          "absolute -right-[16px] top-8 w-[32px] h-[32px] rounded-full bg-white shadow-card flex items-center justify-center text-text-primary hover:text-primary transition-all duration-150 z-40 border border-[#E2E8F0] active:scale-95",
+          isCollapsed && "right-[-16px]"
+        )}
+        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
-        {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
       </button>
 
       {/* Top Section / Logo */}
-      <div className={cn("p-6 flex items-center gap-3", isCollapsed && "justify-center px-0")}>
-        <div className="w-6 h-6 bg-primary/10 rounded-md flex items-center justify-center text-primary shrink-0">
-          <Inbox size={16} />
-        </div>
-        {!isCollapsed && (
-          <div className="min-w-0">
-            <h1 className="text-[16px] font-bold text-text-primary leading-tight">Unclutter</h1>
-            <p className="text-[12px] text-text-muted truncate">{userEmail}</p>
+      <div className="px-4 pt-6 pb-4">
+        <div className="flex items-center gap-3">
+          <div className={cn("flex items-center gap-3", isCollapsed && "justify-center flex-1")}> 
+            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary shrink-0">
+              <Inbox size={16} />
+            </div>
+            {!isCollapsed && (
+              <div className="min-w-0">
+                <h1 className="text-[17px] font-semibold text-text-primary leading-tight tracking-tight">Unclutter</h1>
+                <p className="text-[12px] text-text-muted truncate">{userEmail}</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 px-3 mt-4 space-y-6">
         <div>
           {!isCollapsed && (
-            <h2 className="px-3 text-[11px] font-semibold text-text-muted uppercase tracking-widest mb-2">Mailbox</h2>
+            <h2 className="px-3 text-[11px] font-semibold text-text-muted uppercase tracking-[0.4em] mb-2">Mailbox</h2>
           )}
           <div className="space-y-1">
             {navItems.map((item) => {
@@ -93,14 +103,14 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
                   <Link
                     href={item.href}
                     className={cn(
-                      "flex items-center w-full h-[38px] px-[10px] rounded-[8px] transition-all duration-150 overflow-hidden",
+                      "flex items-center w-full h-10 px-[12px] rounded-lg transition-all duration-150 overflow-hidden",
                       isActive 
-                        ? "bg-primary-light border-l-2 border-primary text-primary font-medium" 
+                        ? "bg-primary/15 border-l-2 border-primary text-primary font-semibold" 
                         : "text-text-secondary hover:bg-surface-hover hover:text-text-primary",
                       isCollapsed && "justify-center px-0"
                     )}
                   >
-                    <item.icon className={cn("shrink-0", isCollapsed ? "w-5 h-5" : "w-4 h-4 mr-3")} />
+                    <item.icon className={cn("shrink-0", isCollapsed ? "w-5 h-5" : "w-4 h-4 mr-3") } />
                     {!isCollapsed && (
                       <span className="text-[14px] flex-1 truncate">{item.label}</span>
                     )}
@@ -108,7 +118,7 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
                   
                   {/* Tooltip for collapsed state */}
                   {isCollapsed && (
-                    <div className="absolute left-[70px] top-1/2 -translate-y-1/2 px-3 py-2 bg-white text-text-primary text-[13px] rounded-[8px] shadow-dropdown opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 border border-[#E2E8F0]">
+                    <div className="absolute left-[70px] top-1/2 -translate-y-1/2 px-3 py-2 bg-white text-text-primary text-[13px] rounded-[12px] shadow-dropdown opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 border border-border">
                       {item.label}
                     </div>
                   )}
@@ -120,8 +130,8 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
       </nav>
 
       {/* Footer / User Profile */}
-      <div className={cn("p-4 flex items-center gap-3", isCollapsed && "justify-center px-0")}>
-        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shrink-0">
+      <div className={cn("p-4 flex items-center gap-3", isCollapsed ? "justify-center px-0 relative group" : "")}> 
+        <div className="w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center font-bold text-xs shrink-0">
           {userName[0].toUpperCase()}
         </div>
         {!isCollapsed && (
@@ -132,7 +142,7 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
             <button 
               onClick={handleLogout}
               suppressHydrationWarning={true}
-              className="p-1.5 text-text-muted hover:text-text-primary hover:bg-[#F3F4F6] transition-all duration-150 rounded-md"
+              className="p-2 text-text-muted hover:text-text-primary hover:bg-surface-hover transition-all duration-150 rounded-full"
               title="Sign out"
             >
               <LogOut size={16} />
@@ -140,7 +150,7 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
           </>
         )}
         {isCollapsed && (
-          <div className="absolute left-[70px] bottom-4 px-3 py-2 bg-white text-text-primary text-[13px] rounded-[8px] shadow-dropdown opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 border border-[#E2E8F0]">
+          <div className="absolute left-[70px] bottom-4 px-3 py-2 bg-white text-text-primary text-[13px] rounded-[12px] shadow-dropdown opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 border border-border">
             Logout
           </div>
         )}
