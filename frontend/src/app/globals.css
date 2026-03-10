@@ -1,16 +1,49 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F9FAFB;
-  --foreground: #111827;
-  --radius: 0.5rem;
+  --background: #eaf1f4;
+  --background-deep: radial-gradient(circle at 20% 20%, rgba(14, 179, 168, 0.22), transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(244, 183, 64, 0.18), transparent 45%),
+    linear-gradient(135deg, #eaf1f4 0%, #f8fbff 55%, #eef1f8 100%);
+  --foreground: #0f172a;
+  --radius: 0.85rem;
+  --glass: rgba(255, 255, 255, 0.82);
 }
 
 body {
+  min-height: 100vh;
   background-color: var(--background);
+  background-image: var(--background-deep);
   color: var(--foreground);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body), 'Manrope', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+  line-height: 1.5;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 8% auto auto 55%;
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(circle, rgba(14, 127, 110, 0.18) 0%, transparent 65%);
+  filter: blur(10px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display), 'Sora', 'Manrope', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+}
+
+.glass-panel {
+  background-color: var(--glass);
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.08);
 }
 
 /* Custom Scrollbar */
@@ -20,16 +53,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #F9FAFB;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #E5E7EB;
+  background: rgba(148, 163, 184, 0.4);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #D1D5DB;
+  background: rgba(99, 102, 241, 0.45);
 }
 
 /* Skeleton Shimmer */
@@ -49,8 +82,8 @@ body {
   100% { background-position: 200% 0; }
 }
 
-input:focus, button:focus-visible {
-  outline: 2px solid #6366F1;
+input:focus, button:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid #0d9488;
   outline-offset: 2px;
 }
 
@@ -60,5 +93,5 @@ input:focus, button:focus-visible {
 
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #E5E7EB #F9FAFB;
+  scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
 }

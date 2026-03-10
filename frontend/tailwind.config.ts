@@ -9,42 +9,46 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#F9FAFB",
+        background: "#EAF1F4",
         surface: "#FFFFFF",
-        "surface-hover": "#F3F4F6",
-        "surface-selected": "#EEF2FF",
-        border: "#E2E8F0", // All borders use this light color
-        "border-sidebar": "#E2E8F0",
-        "border-focus": "#6366F1",
+        "surface-hover": "#F1F6F7",
+        "surface-selected": "#DDF4EE",
+        border: "rgba(15, 23, 42, 0.05)",
+        "border-sidebar": "rgba(15, 23, 42, 0.04)",
+        "border-focus": "#0D9488",
         primary: {
-          DEFAULT: "#6366F1",
-          light: "#EEF2FF",
-          hover: "#4F46E5",
+          DEFAULT: "#0D9488",
+          light: "#D0F1EC",
+          hover: "#0B7269",
         },
         success: {
           DEFAULT: "#16A34A",
           light: "#DCFCE7",
         },
         warning: {
-          DEFAULT: "#D97706",
-          light: "#FEF3C7",
+          DEFAULT: "#EA580C",
+          light: "#FFE6D5",
         },
         danger: {
           DEFAULT: "#DC2626",
           light: "#FEE2E2",
         },
+        accent: {
+          DEFAULT: "#F4B63E",
+          light: "#FFF3D6",
+        },
         text: {
-          primary: "#111827",
-          secondary: "#6B7280",
-          muted: "#9CA3AF",
+          primary: "#0F172A",
+          secondary: "#475569",
+          muted: "#8A96AE",
         },
       },
       boxShadow: {
-        soft: "0 4px 16px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)",
-        card: "0 4px 16px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)",
-        dropdown: "0 4px 16px rgba(0,0,0,0.10)",
-        modal: "0 20px 60px rgba(0,0,0,0.15)",
-        toast: "0 4px 12px rgba(0,0,0,0.10)",
+        soft: "0 30px 60px rgba(15,23,42,0.08)",
+        card: "0 20px 45px rgba(15,23,42,0.07)",
+        dropdown: "0 15px 35px rgba(15,23,42,0.12)",
+        modal: "0 40px 80px rgba(15,23,42,0.18)",
+        toast: "0 20px 35px rgba(15,23,42,0.15)",
       },
       borderRadius: {
         panel: "12px",

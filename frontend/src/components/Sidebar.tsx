@@ -64,7 +64,7 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
         onClick={toggleCollapse}
         suppressHydrationWarning={true}
         className={cn(
-          "absolute -right-[16px] top-8 w-[32px] h-[32px] rounded-full bg-white shadow-card flex items-center justify-center text-text-primary hover:text-primary transition-all duration-150 z-40 border border-[#E2E8F0] active:scale-95",
+          "absolute -right-[16px] top-8 w-[32px] h-[32px] rounded-full bg-white shadow-card flex items-center justify-center text-text-primary hover:text-primary transition-all duration-150 z-40 border border-border active:scale-95",
           isCollapsed && "right-[-16px]"
         )}
         aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}

@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function SkeletonRow() {
   return (
-    <div className="flex items-center px-4 h-[64px] border-b border-[#F3F4F6] bg-white">
+    <div className="flex items-center px-4 h-[64px] border-b border-border bg-white">
       <div className="w-[40px] flex-shrink-0">
         <div className="w-4 h-4 rounded-sm shimmer" />
       </div>
