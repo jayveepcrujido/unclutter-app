@@ -9,7 +9,8 @@ import {
   MailX, 
   LogOut, 
   ChevronLeft, 
-  ChevronRight 
+  ChevronRight,
+  RefreshCw 
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -45,6 +46,7 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
 
   const navItems = [
     { label: 'Current Subscriptions', icon: Mail, href: '/dashboard' },
+    { label: 'Pending Confirmations', icon: RefreshCw, href: '/pending' },
     { label: 'Unsubscribed', icon: MailX, href: '/unsubscribed' },
   ];
 
@@ -58,6 +60,7 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
       {/* Collapse Toggle Button */}
       <button 
         onClick={toggleCollapse}
+        suppressHydrationWarning={true}
         className="absolute -right-[14px] top-8 w-[28px] h-[28px] rounded-full bg-white shadow-soft flex items-center justify-center text-text-muted hover:border-[#6366F1] hover:text-[#6366F1] transition-all duration-150 z-40 border border-[#E2E8F0]"
       >
         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
@@ -128,6 +131,7 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
             </div>
             <button 
               onClick={handleLogout}
+              suppressHydrationWarning={true}
               className="p-1.5 text-text-muted hover:text-text-primary hover:bg-[#F3F4F6] transition-all duration-150 rounded-md"
               title="Sign out"
             >

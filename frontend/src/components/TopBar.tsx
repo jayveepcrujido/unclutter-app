@@ -23,6 +23,7 @@ export default function TopBar({ title, onScan, isScanning }: TopBarProps) {
       <button
         onClick={onScan}
         disabled={isScanning}
+        suppressHydrationWarning={true}
         className={cn(
           "h-[36px] px-4 rounded-[8px] flex items-center gap-2 text-[14px] font-medium transition-all duration-150 shadow-sm active:scale-[0.98]",
           isScanning 

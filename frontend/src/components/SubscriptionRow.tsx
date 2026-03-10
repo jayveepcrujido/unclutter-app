@@ -6,7 +6,8 @@ import {
   Link as LinkIcon, 
   AlertCircle, 
   CheckCircle, 
-  MoreHorizontal 
+  MoreHorizontal,
+  RefreshCw
 } from 'lucide-react';
 import { Subscription } from '../types';
 import { clsx, type ClassValue } from 'clsx';
@@ -25,7 +26,15 @@ interface Props {
 
 export default function SubscriptionRow({ subscription, isSelected, onToggle, isReadOnly }: Props) {
   const isFailed = subscription.status === 'failed';
+  const isPending = subscription.status === 'pending_confirmation';
+  const isManual = isFailed && (subscription.error_message?.includes('manual') || subscription.error_message?.includes('form'));
   const isUnsubscribed = subscription.status === 'unsubscribed';
+  const isAutoMethod = ['list-unsubscribe', 'list-unsubscribe-post'].includes(subscription.unsubscribe_method || '');
+  const methodLabel = subscription.unsubscribe_method === 'list-unsubscribe-post'
+    ? 'One-Click'
+    : isAutoMethod
+      ? 'Auto'
+      : 'Link';
   
   const initial = (subscription.sender_name || subscription.sender_email)[0].toUpperCase();
   
@@ -42,6 +51,7 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
         "group flex items-center px-6 py-5 transition-all duration-200 relative border-b border-[#E2E8F0]",
         !isReadOnly && isSelected ? "bg-surface-selected border-l-[3px] border-primary" : "bg-white hover:bg-background border-l-[3px] border-transparent hover:border-primary",
         isFailed && "bg-[#FFF8F8] border-l-[3px] border-[#FCA5A5]",
+        isPending && "bg-indigo-50/30 border-l-[3px] border-primary",
         isUnsubscribed && "opacity-[0.85]"
       )}
     >
@@ -52,7 +62,8 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
             type="checkbox" 
             checked={isSelected} 
             onChange={onToggle}
-            disabled={isUnsubscribed}
+            disabled={isUnsubscribed || isPending}
+            suppressHydrationWarning={true}
             className="w-4 h-4 rounded-sm border-[#E2E8F0] text-primary focus:ring-primary focus:ring-offset-0 transition-all cursor-pointer"
           />
         </div>
@@ -90,16 +101,16 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
       <div className="w-[100px] flex-shrink-0 px-2">
         <span className={cn(
           "inline-flex items-center gap-1 text-[12px] px-1.5 py-0.5 rounded-badge",
-          subscription.unsubscribe_method === 'list-unsubscribe' 
+          isAutoMethod 
             ? "bg-primary-light text-primary" 
             : "bg-surface-hover text-text-secondary"
         )}>
-          {subscription.unsubscribe_method === 'list-unsubscribe' ? (
+          {isAutoMethod ? (
             <Zap size={12} className="shrink-0" />
           ) : (
             <LinkIcon size={12} className="shrink-0" />
           )}
-          <span>{subscription.unsubscribe_method === 'list-unsubscribe' ? 'Auto' : 'Link'}</span>
+          <span>{methodLabel}</span>
         </span>
       </div>
 
@@ -110,8 +121,24 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
             <CheckCircle size={14} className="shrink-0 text-success" />
             <span>Stopped</span>
           </span>
+        ) : isPending ? (
+          <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-indigo-100 text-primary font-bold animate-pulse" title="Waiting for confirmation email...">
+            <RefreshCw size={12} className="shrink-0 animate-spin" />
+            <span>Confirming</span>
+          </span>
+        ) : isManual ? (
+          <a 
+            href={subscription.unsubscribe_link || '#'} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-amber-100 text-amber-700 font-bold hover:bg-amber-200 transition-colors"
+            title="Click to unsubscribe manually"
+          >
+            <AlertCircle size={12} className="shrink-0" />
+            <span>Manual</span>
+          </a>
         ) : isFailed ? (
-          <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-danger-light text-danger font-medium">
+          <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-danger-light text-danger font-medium" title={subscription.error_message || 'Unsubscribe failed'}>
             <AlertCircle size={12} className="shrink-0" />
             <span>Failed</span>
           </span>

@@ -66,7 +66,15 @@ export default function DashboardPage() {
     setIsProcessing(true);
     try {
       const response = await api.bulkUnsubscribe(selectedIds);
-      addToast(`Successfully unsubscribed from ${response.success_count} senders.`, 'success');
+      const successCount = response.success_count;
+      const failedCount = response.failed_count;
+      
+      if (failedCount === 0) {
+        addToast(`Successfully unsubscribed from ${successCount} senders.`, 'success');
+      } else {
+        addToast(`Processed ${successCount + failedCount} requests: ${successCount} successes, ${failedCount} failures. Check for "Manual" or "Failed" tags.`, 'info');
+      }
+      
       setSelectedIds([]);
       refetch();
     } catch (error) {
@@ -75,6 +83,8 @@ export default function DashboardPage() {
       setIsProcessing(false);
     }
   };
+
+  const manualCount = subscriptions.filter(s => s.status === 'failed' && (s.error_message?.includes('manual') || s.error_message?.includes('form'))).length;
 
   const selectedNames = subscriptions
     .filter(s => selectedIds.includes(s.id))
@@ -102,6 +112,26 @@ export default function DashboardPage() {
         )}>
           <div className="max-w-6xl mx-auto space-y-8">
             
+            {manualCount > 0 && (
+              <div className="flex items-center justify-between gap-4 bg-amber-50 border border-amber-200 p-4 rounded-[12px] shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0">
+                    <MailX size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-[14px] font-bold text-amber-900">Manual Action Required</h4>
+                    <p className="text-[13px] text-amber-700">{manualCount} senders require you to fill out a form to unsubscribe. Look for the "Manual" button below.</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSearchQuery('failed')}
+                  className="px-4 py-2 bg-white border border-amber-200 text-amber-700 text-[13px] font-bold rounded-[8px] hover:bg-amber-100 transition-colors shrink-0"
+                >
+                  Show Manual
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center gap-2 text-text-secondary">
               <Info size={14} className="text-primary" />
               <p className="text-[14px] font-medium">{subscriptions.length} active subscriptions found in your inbox.</p>
@@ -112,6 +142,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-3">
                 <button 
                   onClick={handleSelectAll} 
+                  suppressHydrationWarning={true}
                   className="flex items-center gap-2 text-[14px] font-semibold text-text-primary hover:text-primary transition-all duration-150"
                 >
                   {allSelected ? <CheckSquare size={18} className="text-primary" /> : <Square size={18} />}
@@ -128,6 +159,7 @@ export default function DashboardPage() {
                 {selectedIds.length > 0 ? (
                   <button
                     onClick={() => setIsConfirmOpen(true)}
+                    suppressHydrationWarning={true}
                     className="h-[36px] px-4 rounded-[8px] text-[13px] font-bold flex items-center gap-2 transition-all duration-150 shadow-sm active:scale-[0.98] bg-[#DC2626] text-white hover:bg-[#B91C1C]"
                   >
                     <MailX size={16} color="#FFFFFF" />
@@ -142,10 +174,14 @@ export default function DashboardPage() {
                         placeholder="Search senders..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        suppressHydrationWarning={true}
                         className="w-full h-[36px] bg-[#F3F4F6] rounded-[10px] pl-9 pr-3 text-[13px] text-text-primary focus:bg-white focus:border-[#E2E8F0] border border-transparent transition-all duration-150 placeholder:text-text-muted outline-none hover:bg-[#EBEEF2]"
                       />
                     </div>
-                    <select className="h-[36px] px-3 bg-[#F3F4F6] rounded-[10px] text-[13px] text-text-primary focus:bg-white focus:border-[#E2E8F0] border border-transparent cursor-pointer transition-all duration-150 outline-none hover:bg-[#EBEEF2]">
+                    <select 
+                      suppressHydrationWarning={true}
+                      className="h-[36px] px-3 bg-[#F3F4F6] rounded-[10px] text-[13px] text-text-primary focus:bg-white focus:border-[#E2E8F0] border border-transparent cursor-pointer transition-all duration-150 outline-none hover:bg-[#EBEEF2]"
+                    >
                       <option>All</option>
                       <option>Active</option>
                       <option>Failed</option>
@@ -192,6 +228,7 @@ export default function DashboardPage() {
                     </div>
                     <button
                       onClick={scan}
+                      suppressHydrationWarning={true}
                       className="h-[40px] px-8 rounded-[8px] text-[14px] font-bold transition-all duration-150 active:scale-[0.98] bg-[#6366F1] text-white hover:bg-[#4F46E5]"
                     >
                       Scan Inbox

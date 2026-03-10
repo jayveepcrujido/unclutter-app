@@ -7,10 +7,12 @@ export interface Subscription {
   id: number;
   sender_email: string;
   sender_name: string | null;
-  status: 'active' | 'unsubscribed' | 'failed';
+  status: 'active' | 'unsubscribed' | 'failed' | 'pending_confirmation';
   email_count: number;
   last_email_received_at: string;
-  unsubscribe_method: 'link' | 'mailto' | 'list-unsubscribe' | null;
+  unsubscribe_method: 'link' | 'mailto' | 'list-unsubscribe' | 'list-unsubscribe-post' | null;
+  unsubscribe_link?: string;
+  error_message?: string | null;
 }
 
 export interface UnsubscribeResult {

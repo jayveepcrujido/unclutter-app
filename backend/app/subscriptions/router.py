@@ -21,23 +21,61 @@ def get_subscriptions(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    from sqlalchemy import func
+    
+    # Subquery to get the latest action for each subscription
+    latest_action_subquery = db.query(
+        UnsubscribeAction.subscription_id,
+        func.max(UnsubscribeAction.attempted_at).label('max_attempted_at')
+    ).filter(UnsubscribeAction.user_id == current_user.id).group_by(UnsubscribeAction.subscription_id).subquery()
+
     query = db.query(Subscription).filter(Subscription.user_id == current_user.id)
     if status:
         query = query.filter(Subscription.status == status)
     
     total = query.count()
-    subscriptions = query.offset(offset).limit(limit).all()
+    
+    # Join with latest action to get error message
+    subscriptions_with_actions = db.query(Subscription, UnsubscribeAction.error_message).outerjoin(
+        latest_action_subquery, Subscription.id == latest_action_subquery.c.subscription_id
+    ).outerjoin(
+        UnsubscribeAction, 
+        (UnsubscribeAction.subscription_id == latest_action_subquery.c.subscription_id) & 
+        (UnsubscribeAction.attempted_at == latest_action_subquery.c.max_attempted_at)
+    ).filter(Subscription.user_id == current_user.id)
+    
+    if status:
+        subscriptions_with_actions = subscriptions_with_actions.filter(Subscription.status == status)
+        
+    results = subscriptions_with_actions.order_by(Subscription.last_email_received_at.desc()).offset(offset).limit(limit).all()
+    
+    formatted_subscriptions = []
+    for sub, error_msg in results:
+        sub_dict = {
+            "id": sub.id,
+            "sender_email": sub.sender_email,
+            "sender_name": sub.sender_name,
+            "unsubscribe_link": sub.unsubscribe_link,
+            "unsubscribe_method": sub.unsubscribe_method,
+            "status": sub.status,
+            "email_count": sub.email_count,
+            "last_email_received_at": sub.last_email_received_at,
+            "error_message": error_msg
+        }
+        formatted_subscriptions.append(sub_dict)
     
     return {
-        "subscriptions": subscriptions,
+        "subscriptions": formatted_subscriptions,
         "total": total
     }
 
 @router.post("/scan")
-def trigger_scan(
+async def trigger_scan(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    from .scanner import check_for_confirmations
+    await check_for_confirmations(db, current_user)
     return scan_user_inbox(db, current_user)
 
 @router.post("/unsubscribe")
