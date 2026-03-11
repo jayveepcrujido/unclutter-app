@@ -7,9 +7,14 @@ load_dotenv()
 
 app = FastAPI(title="Unclutter API")
 
+frontend_origins = os.getenv("FRONTEND_URL", "http://localhost:3000")
+allow_origins = [origin.strip() for origin in frontend_origins.split(",") if origin.strip()]
+if not allow_origins:
+    allow_origins = ["http://localhost:3000"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL", "http://localhost:3000")],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
