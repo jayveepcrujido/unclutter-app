@@ -20,7 +20,7 @@ export default function AnalyticsDashboardPage() {
   const { scan, loading: isScanning } = useScan();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [manualCount, pendingCount, unsubscribedCount, activeCount, averageEmails] = useMemo(() => {
-    const manual = subscriptions.filter(s => s.status === 'failed' && (s.error_message?.includes('manual') || s.error_message?.includes('form'))).length;
+    const manual = subscriptions.filter(s => s.status === 'manual_required').length;
     const pending = subscriptions.filter(s => s.status === 'pending_confirmation').length;
     const unsubscribed = subscriptions.filter(s => s.status === 'unsubscribed').length;
     const active = subscriptions.filter(s => s.status !== 'unsubscribed').length;

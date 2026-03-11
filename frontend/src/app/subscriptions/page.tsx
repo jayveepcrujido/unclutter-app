@@ -49,14 +49,14 @@ export default function SubscriptionsPage() {
     s.sender_email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const activeFiltered = filteredSubscriptions.filter(s => s.status !== 'unsubscribed');
-  const allSelected = selectedIds.length > 0 && selectedIds.length === activeFiltered.length;
+  const selectableSubscriptions = filteredSubscriptions.filter(s => !['unsubscribed', 'pending_confirmation', 'manual_required'].includes(s.status));
+  const allSelected = selectedIds.length > 0 && selectedIds.length === selectableSubscriptions.length;
 
   const handleSelectAll = () => {
     if (allSelected) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(activeFiltered.map(s => s.id));
+      setSelectedIds(selectableSubscriptions.map(s => s.id));
     }
   };
 
@@ -66,11 +66,19 @@ export default function SubscriptionsPage() {
       const response = await api.bulkUnsubscribe(selectedIds);
       const successCount = response.success_count;
       const failedCount = response.failed_count;
+      const manualStepCount = response.manual_count || 0;
       
-      if (failedCount === 0) {
+      if (failedCount === 0 && manualStepCount === 0) {
         addToast(`Successfully unsubscribed from ${successCount} senders.`, 'success');
       } else {
-        addToast(`Processed ${successCount + failedCount} requests: ${successCount} successes, ${failedCount} failures. Check for "Manual" or "Failed" tags.`, 'info');
+        const total = successCount + failedCount + manualStepCount;
+        const parts = [
+          successCount ? `${successCount} automated` : null,
+          manualStepCount ? `${manualStepCount} manual` : null,
+          failedCount ? `${failedCount} failed` : null,
+        ].filter((part): part is string => Boolean(part)).join(', ');
+        const manualNote = manualStepCount ? ' Check the Manual badge to finish those senders.' : '';
+        addToast(`Processed ${total} requests: ${parts}.${manualNote}`, failedCount ? 'error' : 'info');
       }
       
       setSelectedIds([]);
@@ -80,7 +88,7 @@ export default function SubscriptionsPage() {
     }
   };
 
-  const manualCount = subscriptions.filter(s => s.status === 'failed' && (s.error_message?.includes('manual') || s.error_message?.includes('form'))).length;
+  const manualCount = subscriptions.filter(s => s.status === 'manual_required').length;
 
   const selectedNames = subscriptions
     .filter(s => selectedIds.includes(s.id))
@@ -120,7 +128,7 @@ export default function SubscriptionsPage() {
                   </div>
                 </div>
                 <button 
-                  onClick={() => setSearchQuery('failed')}
+                  onClick={() => setSearchQuery('manual')}
                   className="px-4 py-2 bg-white border border-amber-200 text-amber-700 text-[13px] font-semibold rounded-[12px] hover:bg-amber-100 transition-colors shrink-0"
                 >
                   Show Manual

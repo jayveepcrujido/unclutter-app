@@ -26,7 +26,7 @@ class Subscription(Base):
     sender_name = Column(String(255))
     unsubscribe_link = Column(Text)
     unsubscribe_method = Column(String(50))  # 'link', 'mailto', or 'list-unsubscribe'
-    status = Column(String(50), default="active")  # 'active', 'unsubscribed', 'failed', 'pending_confirmation'
+    status = Column(String(50), default="active")  # 'active', 'unsubscribed', 'failed', 'pending_confirmation', 'manual_required'
     email_count = Column(Integer, default=1)
     first_detected_at = Column(DateTime, default=datetime.utcnow)
     last_email_received_at = Column(DateTime)

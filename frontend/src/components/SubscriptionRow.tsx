@@ -27,7 +27,9 @@ interface Props {
 export default function SubscriptionRow({ subscription, isSelected, onToggle, isReadOnly }: Props) {
   const isFailed = subscription.status === 'failed';
   const isPending = subscription.status === 'pending_confirmation';
-  const isManual = isFailed && (subscription.error_message?.includes('manual') || subscription.error_message?.includes('form'));
+  const manualHint = (subscription.error_message || '').toLowerCase();
+  const derivedManual = isFailed && (manualHint.includes('manual') || manualHint.includes('form'));
+  const isManual = subscription.status === 'manual_required' || derivedManual;
   const isUnsubscribed = subscription.status === 'unsubscribed';
   const isAutoMethod = ['list-unsubscribe', 'list-unsubscribe-post'].includes(subscription.unsubscribe_method || '');
   const methodLabel = subscription.unsubscribe_method === 'list-unsubscribe-post'
@@ -46,6 +48,9 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
   const avatarBg = avatarColors[colorIndex];
 
   const statusToneClasses = (() => {
+    if (isManual) {
+      return "bg-amber-50 border-l-[3px] border-amber-300";
+    }
     if (isFailed) {
       return "bg-danger-light border-l-[3px] border-danger/70";
     }
@@ -78,7 +83,7 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
             type="checkbox" 
             checked={isSelected} 
             onChange={onToggle}
-            disabled={isUnsubscribed || isPending}
+            disabled={isUnsubscribed || isPending || isManual}
             suppressHydrationWarning={true}
             className="w-4 h-4 rounded-sm border-border text-primary focus:ring-primary focus:ring-offset-0 transition-all cursor-pointer"
           />
@@ -137,22 +142,29 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
             <CheckCircle size={14} className="shrink-0 text-success" />
             <span>Stopped</span>
           </span>
+        ) : isManual ? (
+          subscription.unsubscribe_link ? (
+            <a 
+              href={subscription.unsubscribe_link} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-amber-100 text-amber-700 font-bold hover:bg-amber-200 transition-colors"
+              title={subscription.error_message || 'Complete this unsubscribe manually'}
+            >
+              <AlertCircle size={12} className="shrink-0" />
+              <span>Manual</span>
+            </a>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-amber-100 text-amber-700 font-bold" title={subscription.error_message || 'Manual completion required'}>
+              <AlertCircle size={12} className="shrink-0" />
+              <span>Manual</span>
+            </span>
+          )
         ) : isPending ? (
           <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-primary/15 text-primary font-bold" title="Waiting for confirmation email...">
             <RefreshCw size={12} className="shrink-0 animate-spin" />
             <span>Confirming</span>
           </span>
-        ) : isManual ? (
-          <a 
-            href={subscription.unsubscribe_link || '#'} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-amber-100 text-amber-700 font-bold hover:bg-amber-200 transition-colors"
-            title="Click to unsubscribe manually"
-          >
-            <AlertCircle size={12} className="shrink-0" />
-            <span>Manual</span>
-          </a>
         ) : isFailed ? (
           <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-danger-light text-danger font-medium" title={subscription.error_message || 'Unsubscribe failed'}>
             <AlertCircle size={12} className="shrink-0" />
