@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { api } from '../lib/api';
-import { Mail, ScanLine, LayoutList, Trash2, Lock, Inbox, ShieldCheck, Sparkles, BarChart3, CheckCircle2 } from 'lucide-react';
+import { Mail, ScanLine, LayoutList, Trash2, Lock, ShieldCheck, Sparkles, BarChart3, CheckCircle2 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -61,11 +62,15 @@ export default function LandingPage() {
                 <Sparkles size={16} /> Inbox Intelligence Platform
               </div>
               <div className="space-y-5">
-                <div className="flex items-center gap-3 text-primary">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <Inbox size={24} />
-                  </div>
-                  <span className="font-semibold uppercase tracking-[0.2em] text-[12px] text-primary">Unclutter</span>
+                <div className="rounded-2xl border border-white/40 bg-white/80 p-3 shadow-soft">
+                  <Image
+                    src="/unclutter-hero-logo.png"
+                    alt="Unclutter logo"
+                    width={1920}
+                    height={421}
+                    priority
+                    className="h-auto w-full rounded-xl object-cover"
+                  />
                 </div>
                 <h1 className="text-[40px] leading-tight md:text-[52px]">
                   Untangle every newsletter and reclaim your inbox in minutes.
