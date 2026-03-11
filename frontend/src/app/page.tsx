@@ -73,14 +73,13 @@ const proofStats = [
   { value: '92%', label: 'auto-confirm success rate' },
 ];
 
-const testimonials = [
-  {
-    quote:
-      'Within two scans we cut 1,600 marketing threads and surfaced the six vendors that actually mattered. Our founder inbox feels sane again.',
-    name: 'Maya Ortiz',
-    role: 'Chief of Staff, Alloy Labs',
-  },
-];
+type Testimonial = {
+  quote: string;
+  name: string;
+  role: string;
+};
+
+const testimonials: Testimonial[] = [];
 
 const sampleSenders = [
   { name: 'Field Notes Weekly', email: 'updates@fieldnotes.io', emails: 28, status: 'Auto' },
@@ -259,16 +258,23 @@ export default function LandingPage() {
           <div className="rounded-[18px] border border-border/80 bg-surface px-6 py-6">
             <p className="text-[13px] uppercase tracking-[0.35em] text-text-muted">Proof & validation</p>
             <div className="mt-4 space-y-6">
-              {testimonials.map((testimonial) => (
-                <div key={testimonial.name} className="space-y-4">
-                  <Quote size={24} className="text-primary" />
-                  <p className="text-[18px] text-text-primary">“{testimonial.quote}”</p>
-                  <div className="text-[14px] text-text-secondary">
-                    <p className="font-semibold text-text-primary">{testimonial.name}</p>
-                    <p>{testimonial.role}</p>
+              {testimonials.length > 0 ? (
+                testimonials.map((testimonial) => (
+                  <div key={testimonial.name} className="space-y-4">
+                    <Quote size={24} className="text-primary" />
+                    <p className="text-[18px] text-text-primary">“{testimonial.quote}”</p>
+                    <div className="text-[14px] text-text-secondary">
+                      <p className="font-semibold text-text-primary">{testimonial.name}</p>
+                      <p>{testimonial.role}</p>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="rounded-2xl border border-border/60 bg-white/80 p-4 text-[15px] text-text-secondary">
+                  <p>We&apos;re still onboarding the first operators, so public proof will land here once we have real results.</p>
+                  <p className="mt-2 text-[13px] uppercase tracking-[0.35em] text-text-muted">Stay tuned.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
           <div className="rounded-[18px] border border-dashed border-border/80 bg-surface-hover px-6 py-6">
