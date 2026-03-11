@@ -45,13 +45,29 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
   const colorIndex = (subscription.sender_name || subscription.sender_email).length % avatarColors.length;
   const avatarBg = avatarColors[colorIndex];
 
+  const statusToneClasses = (() => {
+    if (isFailed) {
+      return "bg-danger-light border-l-[3px] border-danger/70";
+    }
+    if (isPending) {
+      return "bg-primary/10 border-l-[3px] border-primary/60";
+    }
+    if (isUnsubscribed) {
+      return "bg-surface-hover/80 border-l-[3px] border-border/60";
+    }
+    return "bg-white/90 hover:bg-background border-l-[3px] border-transparent hover:border-primary/50";
+  })();
+
+  const selectionClasses = !isReadOnly && isSelected
+    ? "ring-2 ring-primary/25 ring-offset-0"
+    : "";
+
   return (
     <div 
       className={cn(
         "group flex items-center px-6 py-5 transition-all duration-200 relative border-b border-border",
-        !isReadOnly && isSelected ? "bg-surface-selected/80 border-l-[3px] border-primary" : "bg-white/90 hover:bg-background border-l-[3px] border-transparent hover:border-primary",
-        isFailed && "bg-danger-light border-l-[3px] border-danger",
-        isPending && "bg-primary/5 border-l-[3px] border-primary",
+        statusToneClasses,
+        selectionClasses,
         isUnsubscribed && "opacity-[0.85]"
       )}
     >
