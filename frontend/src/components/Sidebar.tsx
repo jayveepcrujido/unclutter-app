@@ -10,7 +10,6 @@ import {
   LogOut, 
   ChevronLeft, 
   ChevronRight,
-  RefreshCw,
   LayoutDashboard 
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
@@ -48,7 +47,6 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
   const navItems = [
     { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { label: 'Current Subscriptions', icon: Mail, href: '/subscriptions' },
-    { label: 'Pending Confirmations', icon: RefreshCw, href: '/pending' },
     { label: 'Unsubscribed', icon: MailX, href: '/unsubscribed' },
   ];
 
@@ -142,7 +140,7 @@ export default function Sidebar({ onCollapseChange }: SidebarProps) {
             <button 
               onClick={handleLogout}
               suppressHydrationWarning={true}
-              className="p-2 text-text-muted hover:text-text-primary hover:bg-surface-hover transition-all duration-150 rounded-full"
+              className="p-2 text-primary bg-surface-hover border border-border rounded-full transition-colors duration-150 hover:bg-primary/10"
               title="Sign out"
             >
               <LogOut size={16} />

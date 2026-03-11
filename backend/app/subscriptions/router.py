@@ -74,8 +74,6 @@ async def trigger_scan(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    from .scanner import check_for_confirmations
-    await check_for_confirmations(db, current_user)
     return scan_user_inbox(db, current_user)
 
 @router.post("/unsubscribe")

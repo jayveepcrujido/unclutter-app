@@ -49,7 +49,7 @@ export default function SubscriptionsPage() {
     s.sender_email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const selectableSubscriptions = filteredSubscriptions.filter(s => !['unsubscribed', 'pending_confirmation', 'manual_required'].includes(s.status));
+  const selectableSubscriptions = filteredSubscriptions.filter(s => !['unsubscribed', 'manual_required'].includes(s.status));
   const allSelected = selectedIds.length > 0 && selectedIds.length === selectableSubscriptions.length;
 
   const handleSelectAll = () => {

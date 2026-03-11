@@ -274,10 +274,7 @@ async def process_unsubscribe(db: Session, user: User, subscription: Subscriptio
         if not error_message:
             error_message = MANUAL_MESSAGE
     elif success:
-        if method_value == 'mailto':
-            setattr(subscription, 'status', 'pending_confirmation')
-        else:
-            setattr(subscription, 'status', 'unsubscribed')
+        setattr(subscription, 'status', 'unsubscribed')
     else:
         setattr(subscription, 'status', 'failed')
         if not error_message:
@@ -315,7 +312,7 @@ async def bulk_unsubscribe_process(db: Session, user: User, subscription_ids: li
         if subscription:
             result = await process_unsubscribe(db, user, subscription)
             results.append(result)
-            if result['status'] in ['unsubscribed', 'pending_confirmation']:
+            if result['status'] == 'unsubscribed':
                 success_count += 1
             elif result['status'] == 'manual_required':
                 manual_count += 1

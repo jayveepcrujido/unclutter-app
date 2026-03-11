@@ -6,8 +6,7 @@ import {
   Link as LinkIcon, 
   AlertCircle, 
   CheckCircle, 
-  MoreHorizontal,
-  RefreshCw
+  MoreHorizontal
 } from 'lucide-react';
 import { Subscription } from '../types';
 import { clsx, type ClassValue } from 'clsx';
@@ -26,17 +25,20 @@ interface Props {
 
 export default function SubscriptionRow({ subscription, isSelected, onToggle, isReadOnly }: Props) {
   const isFailed = subscription.status === 'failed';
-  const isPending = subscription.status === 'pending_confirmation';
   const manualHint = (subscription.error_message || '').toLowerCase();
   const derivedManual = isFailed && (manualHint.includes('manual') || manualHint.includes('form'));
   const isManual = subscription.status === 'manual_required' || derivedManual;
   const isUnsubscribed = subscription.status === 'unsubscribed';
-  const isAutoMethod = ['list-unsubscribe', 'list-unsubscribe-post'].includes(subscription.unsubscribe_method || '');
-  const methodLabel = subscription.unsubscribe_method === 'list-unsubscribe-post'
+  const unsubscribeMethod = subscription.unsubscribe_method || '';
+  const isAutoMethod = ['list-unsubscribe', 'list-unsubscribe-post'].includes(unsubscribeMethod);
+  const methodLabel = unsubscribeMethod === 'list-unsubscribe-post'
     ? 'One-Click'
-    : isAutoMethod
+    : unsubscribeMethod === 'list-unsubscribe'
       ? 'Auto'
-      : 'Link';
+      : unsubscribeMethod === 'mailto'
+        ? 'Mailto'
+        : 'Link';
+  const isManualLink = unsubscribeMethod === 'link' && Boolean(subscription.unsubscribe_link);
   
   const initial = (subscription.sender_name || subscription.sender_email)[0].toUpperCase();
   
@@ -53,9 +55,6 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
     }
     if (isFailed) {
       return "bg-danger-light border-l-[3px] border-danger/70";
-    }
-    if (isPending) {
-      return "bg-primary/10 border-l-[3px] border-primary/60";
     }
     if (isUnsubscribed) {
       return "bg-surface-hover/80 border-l-[3px] border-border/60";
@@ -83,7 +82,7 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
             type="checkbox" 
             checked={isSelected} 
             onChange={onToggle}
-            disabled={isUnsubscribed || isPending || isManual}
+             disabled={isUnsubscribed || isManual}
             suppressHydrationWarning={true}
             className="w-4 h-4 rounded-sm border-border text-primary focus:ring-primary focus:ring-offset-0 transition-all cursor-pointer"
           />
@@ -120,19 +119,28 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
 
       {/* Method */}
       <div className="w-[100px] flex-shrink-0 px-2">
-          <span className={cn(
-            "inline-flex items-center gap-1 text-[12px] px-1.5 py-0.5 rounded-badge",
-            isAutoMethod 
-              ? "bg-primary/15 text-primary" 
-              : "bg-surface-hover text-text-secondary"
-          )}>
-          {isAutoMethod ? (
+        {isAutoMethod ? (
+          <span className="inline-flex items-center gap-1 text-[12px] px-1.5 py-0.5 rounded-badge bg-primary/15 text-primary">
             <Zap size={12} className="shrink-0" />
-          ) : (
+            <span>{methodLabel}</span>
+          </span>
+        ) : isManualLink ? (
+          <a
+            href={subscription.unsubscribe_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-[12px] px-1.5 py-0.5 rounded-badge bg-surface-hover text-primary underline decoration-dotted"
+            title="Open unsubscribe link"
+          >
             <LinkIcon size={12} className="shrink-0" />
-          )}
-          <span>{methodLabel}</span>
-        </span>
+            <span>{methodLabel}</span>
+          </a>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-[12px] px-1.5 py-0.5 rounded-badge bg-surface-hover text-text-secondary">
+            <LinkIcon size={12} className="shrink-0" />
+            <span>{methodLabel}</span>
+          </span>
+        )}
       </div>
 
       {/* Status */}
@@ -160,11 +168,6 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
               <span>Manual</span>
             </span>
           )
-        ) : isPending ? (
-          <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-primary/15 text-primary font-bold" title="Waiting for confirmation email...">
-            <RefreshCw size={12} className="shrink-0 animate-spin" />
-            <span>Confirming</span>
-          </span>
         ) : isFailed ? (
           <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-danger-light text-danger font-medium" title={subscription.error_message || 'Unsubscribe failed'}>
             <AlertCircle size={12} className="shrink-0" />

@@ -7,7 +7,7 @@ import { useScan } from '../../hooks/useScan';
 import Sidebar from '../../components/Sidebar';
 import TopBar from '../../components/TopBar';
 import ScanProgress from '../../components/ScanProgress';
-import { Info, Sparkles, Activity, Zap, Target, TrendingDown, BarChart3, ArrowRight, Clock, MailOpen, MailX, RefreshCw } from 'lucide-react';
+import { Info, Sparkles, Activity, Zap, Target, TrendingDown, BarChart3, ArrowRight, Clock, MailOpen, MailX } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -19,15 +19,14 @@ export default function AnalyticsDashboardPage() {
   const { subscriptions, loading } = useSubscriptions();
   const { scan, loading: isScanning } = useScan();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [manualCount, pendingCount, unsubscribedCount, activeCount, averageEmails] = useMemo(() => {
+  const [manualCount, unsubscribedCount, activeCount, averageEmails] = useMemo(() => {
     const manual = subscriptions.filter(s => s.status === 'manual_required').length;
-    const pending = subscriptions.filter(s => s.status === 'pending_confirmation').length;
     const unsubscribed = subscriptions.filter(s => s.status === 'unsubscribed').length;
     const active = subscriptions.filter(s => s.status !== 'unsubscribed').length;
     const avgEmails = subscriptions.length
       ? Math.round(subscriptions.reduce((total, entry) => total + (entry.email_count || 0), 0) / subscriptions.length)
       : 0;
-    return [manual, pending, unsubscribed, active, avgEmails];
+    return [manual, unsubscribed, active, avgEmails];
   }, [subscriptions]);
 
   const successRate = subscriptions.length
@@ -36,8 +35,8 @@ export default function AnalyticsDashboardPage() {
 
   const focusStats = [
     { label: 'Active senders', value: activeCount, sub: `${subscriptions.length} total indexed`, icon: Activity },
-    { label: 'Pending confirmations', value: pendingCount, sub: 'Awaiting inbox reply', icon: RefreshCw },
-    { label: 'Manual actions', value: manualCount, sub: 'Need human input', icon: MailX },
+    { label: 'Senders silenced', value: unsubscribedCount, sub: 'Auto or mailto actions', icon: MailX },
+    { label: 'Manual actions', value: manualCount, sub: 'Need human input', icon: Target },
     { label: 'Avg emails / sender', value: isNaN(averageEmails) ? 0 : averageEmails, sub: 'Rolling 30 days', icon: MailOpen },
   ];
 
@@ -78,7 +77,7 @@ export default function AnalyticsDashboardPage() {
                   <div className="space-y-4">
                     <h1 className="text-[40px] font-semibold leading-tight text-text-primary">{activeCount} active senders are still talking to you.</h1>
                     <p className="text-[16px] text-text-secondary md:text-[18px]">
-                      Track how much noise automation removed, what&apos;s waiting on Gmail confirmations, and where human attention is required.
+                      Track how much noise automation removed and where human attention is required.
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-3">
@@ -192,8 +191,8 @@ export default function AnalyticsDashboardPage() {
               </div>
               <div className="mt-4 grid gap-4 md:grid-cols-3">
                 {[
-                  { title: 'Resolve manual unsubscribes', desc: manualCount > 0 ? `${manualCount} senders require manual confirmation` : 'No manual actions pending', action: 'Open queue', href: '/subscriptions?filter=manual' },
-                  { title: 'Review pending confirmations', desc: pendingCount > 0 ? `${pendingCount} senders waiting on Gmail reply` : 'All confirmations clear', action: 'View pending', href: '/pending' },
+                  { title: 'Resolve manual unsubscribes', desc: manualCount > 0 ? `${manualCount} senders require manual attention` : 'No manual actions pending', action: 'Open queue', href: '/subscriptions?filter=manual' },
+                  { title: 'Run another scan', desc: 'Catch new senders before they pile up', action: 'Scan inbox', href: '/subscriptions' },
                   { title: 'Audit successes', desc: `${unsubscribedCount} senders stopped this week`, action: 'View log', href: '/unsubscribed' },
                 ].map((card) => (
                   <Link key={card.title} href={card.href} className="rounded-lg border border-border/70 bg-surface px-5 py-4 transition-all hover:-translate-y-1">
