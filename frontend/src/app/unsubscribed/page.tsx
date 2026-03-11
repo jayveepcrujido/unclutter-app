@@ -8,10 +8,10 @@ import TopBar from '../../components/TopBar';
 import SubscriptionRow from '../../components/SubscriptionRow';
 import SkeletonRow from '../../components/SkeletonRow';
 import { Search, MailCheck, Info } from 'lucide-react';
-import { clsx } from 'clsx';
+import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-function cn(...inputs: any[]) {
+function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
@@ -28,13 +28,13 @@ export default function UnsubscribedPage() {
   );
 
   return (
-    <div className="flex bg-[#F9FAFB] min-h-screen text-text-primary overflow-hidden">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#EAF1F4] via-[#E4EDF4] to-[#F8FBFF] text-text-primary overflow-hidden">
       <Sidebar onCollapseChange={setIsCollapsed} />
       
       <main 
         className={cn(
           "flex-1 flex flex-col h-screen transition-all duration-200",
-          isCollapsed ? "ml-[64px]" : "ml-[240px]"
+          isCollapsed ? "ml-[64px]" : "ml-[250px]"
         )}
       >
         <TopBar 
@@ -44,36 +44,36 @@ export default function UnsubscribedPage() {
         />
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-8 md:p-10">
-          <div className="max-w-6xl mx-auto space-y-8">
+          <div className="max-w-5xl mx-auto space-y-8">
             
-            <div className="flex items-center gap-2 text-text-secondary">
-              <Info size={14} className="text-primary" />
+            <div className="flex items-start gap-3 rounded-lg border border-border bg-white/70 px-4 py-3 text-text-secondary shadow-soft">
+              <Info size={16} className="text-primary" />
               <p className="text-[14px] font-medium">{subscriptions.length} senders successfully unsubscribed.</p>
             </div>
 
             {/* Toolbar Row */}
-            <div className="bg-white rounded-[12px] p-3 px-6 shadow-soft flex items-center justify-between h-[60px] border border-[#E2E8F0]">
+            <div className="flex flex-col gap-4 rounded-[16px] border border-border bg-white/85 p-5 px-6 shadow-soft md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-[14px] text-text-primary font-bold uppercase tracking-widest">History</span>
+                <span className="text-[14px] text-text-primary font-bold uppercase tracking-[0.35em]">History</span>
               </div>
 
-              <div className="relative w-[240px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+              <div className="relative w-full md:w-[260px]">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                 <input 
                   type="text" 
                   placeholder="Search history..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   suppressHydrationWarning={true}
-                  className="w-full h-[36px] bg-[#F3F4F6] rounded-[10px] pl-9 pr-3 text-[13px] text-text-primary focus:bg-white focus:border-[#E2E8F0] border border-transparent transition-all placeholder:text-text-muted outline-none"
+                  className="w-full h-10 rounded-lg border border-border bg-transparent pl-11 pr-4 text-[14px] text-text-primary transition-all placeholder:text-text-muted focus:bg-white"
                 />
               </div>
             </div>
 
             {/* History Table */}
-            <div className="bg-white rounded-[12px] shadow-soft overflow-hidden border border-[#E2E8F0]">
+            <div className="overflow-hidden rounded-[18px] border border-border bg-white/90 shadow-soft">
               {/* Table Header */}
-              <div className="flex items-center px-8 h-[48px] bg-[#F9FAFB] text-[11px] font-bold text-text-muted uppercase tracking-widest border-b border-[#E2E8F0]">
+              <div className="flex h-[48px] items-center px-8 text-[11px] font-bold uppercase tracking-[0.35em] text-text-muted border-b border-border bg-background">
                 <div className="flex-1 px-4">Sender</div>
                 <div className="w-[100px] px-2 text-center">Emails</div>
                 <div className="w-[120px] px-2">Unsubscribed On</div>
@@ -83,7 +83,7 @@ export default function UnsubscribedPage() {
               </div>
 
               {/* Table Body */}
-              <div className="bg-white">
+              <div className="bg-white/90">
                 {subsLoading ? (
                   Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
                 ) : filteredSubscriptions.length > 0 ? (
@@ -97,12 +97,12 @@ export default function UnsubscribedPage() {
                     />
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-[80px] text-center space-y-4 bg-white">
-                    <MailCheck size={48} className="text-[#D1D5DB]" />
-                    <div className="space-y-1">
-                      <h3 className="text-[16px] font-medium text-[#374151]">Nothing unsubscribed yet</h3>
-                      <p className="text-[14px] text-text-muted">Head to Current Subscriptions to get started.</p>
+                  <div className="flex flex-col items-center justify-center bg-white/90 py-[80px] text-center">
+                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10">
+                      <MailCheck size={40} className="text-primary" />
                     </div>
+                    <h3 className="text-[18px] font-semibold text-text-primary">Nothing unsubscribed yet</h3>
+                    <p className="mt-1 text-[14px] text-text-secondary">Head to Current Subscriptions to get started.</p>
                   </div>
                 )}
               </div>

@@ -10,24 +10,35 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  loading: boolean;
   login: (userData: User, token: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function getStoredUser(): User | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const token = localStorage.getItem('unclutter_token');
+  const storedUser = localStorage.getItem('unclutter_user');
+  try {
+    return token && storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('unclutter_token');
-    const storedUser = localStorage.getItem('unclutter_user');
-    if (token && storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    const stored = getStoredUser();
+    if (!stored) return;
+    const frame = requestAnimationFrame(() => {
+      setUser(stored);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   const login = (userData: User, token: string) => {
@@ -43,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -27,7 +27,7 @@ function CallbackContent() {
             email: data.email, 
             name: data.name
           }, data.access_token);
-          router.push('/dashboard');
+          router.push('/subscriptions');
         } catch (error) {
           console.error('Auth error:', error);
           alert('Authentication failed.');

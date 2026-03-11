@@ -8,23 +8,23 @@ export default function BulkActionBar({ selectedCount, onUnsubscribe, isLoading 
   if (selectedCount === 0) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-50">
-      <div className="bg-white border rounded-2xl shadow-xl p-4 flex items-center justify-between gap-4">
-        <span className="font-medium text-gray-700">
+    <div className="fixed bottom-6 left-1/2 z-50 w-full max-w-md -translate-x-1/2 px-4">
+      <div className="glass-panel flex items-center justify-between gap-4 rounded-xl border border-border px-5 py-4">
+        <span className="text-[15px] font-semibold text-text-primary">
           {selectedCount} item{selectedCount > 1 ? 's' : ''} selected
         </span>
         <button
           onClick={onUnsubscribe}
           disabled={isLoading}
-          className={`px-6 py-2 rounded-xl font-bold text-white transition-all ${
+          className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-[14px] font-semibold text-white transition-all ${
             isLoading 
-              ? 'bg-blue-400 cursor-not-allowed' 
-              : 'bg-blue-600 hover:bg-blue-700 active:scale-95'
+              ? 'bg-primary/60 cursor-not-allowed' 
+              : 'bg-primary hover:bg-primary-hover active:scale-95 shadow-soft'
           }`}
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
               Processing...
             </div>
           ) : (

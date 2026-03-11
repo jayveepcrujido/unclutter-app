@@ -40,7 +40,7 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
   
   // Deterministic avatar color based on name
   const avatarColors = [
-    'bg-indigo-500', 'bg-violet-500', 'bg-rose-500', 'bg-amber-500', 'bg-teal-500', 'bg-sky-500'
+    'bg-teal-500', 'bg-cyan-600', 'bg-amber-500', 'bg-emerald-500', 'bg-orange-500', 'bg-slate-500'
   ];
   const colorIndex = (subscription.sender_name || subscription.sender_email).length % avatarColors.length;
   const avatarBg = avatarColors[colorIndex];
@@ -48,10 +48,10 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
   return (
     <div 
       className={cn(
-        "group flex items-center px-6 py-5 transition-all duration-200 relative border-b border-[#E2E8F0]",
-        !isReadOnly && isSelected ? "bg-surface-selected border-l-[3px] border-primary" : "bg-white hover:bg-background border-l-[3px] border-transparent hover:border-primary",
-        isFailed && "bg-[#FFF8F8] border-l-[3px] border-[#FCA5A5]",
-        isPending && "bg-indigo-50/30 border-l-[3px] border-primary",
+        "group flex items-center px-6 py-5 transition-all duration-200 relative border-b border-border",
+        !isReadOnly && isSelected ? "bg-surface-selected/80 border-l-[3px] border-primary" : "bg-white/90 hover:bg-background border-l-[3px] border-transparent hover:border-primary",
+        isFailed && "bg-danger-light border-l-[3px] border-danger",
+        isPending && "bg-primary/5 border-l-[3px] border-primary",
         isUnsubscribed && "opacity-[0.85]"
       )}
     >
@@ -64,7 +64,7 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
             onChange={onToggle}
             disabled={isUnsubscribed || isPending}
             suppressHydrationWarning={true}
-            className="w-4 h-4 rounded-sm border-[#E2E8F0] text-primary focus:ring-primary focus:ring-offset-0 transition-all cursor-pointer"
+            className="w-4 h-4 rounded-sm border-border text-primary focus:ring-primary focus:ring-offset-0 transition-all cursor-pointer"
           />
         </div>
       )}
@@ -99,12 +99,12 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
 
       {/* Method */}
       <div className="w-[100px] flex-shrink-0 px-2">
-        <span className={cn(
-          "inline-flex items-center gap-1 text-[12px] px-1.5 py-0.5 rounded-badge",
-          isAutoMethod 
-            ? "bg-primary-light text-primary" 
-            : "bg-surface-hover text-text-secondary"
-        )}>
+          <span className={cn(
+            "inline-flex items-center gap-1 text-[12px] px-1.5 py-0.5 rounded-badge",
+            isAutoMethod 
+              ? "bg-primary/15 text-primary" 
+              : "bg-surface-hover text-text-secondary"
+          )}>
           {isAutoMethod ? (
             <Zap size={12} className="shrink-0" />
           ) : (
@@ -122,7 +122,7 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
             <span>Stopped</span>
           </span>
         ) : isPending ? (
-          <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-indigo-100 text-primary font-bold animate-pulse" title="Waiting for confirmation email...">
+          <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-primary/15 text-primary font-bold" title="Waiting for confirmation email...">
             <RefreshCw size={12} className="shrink-0 animate-spin" />
             <span>Confirming</span>
           </span>
@@ -143,7 +143,7 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
             <span>Failed</span>
           </span>
         ) : (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-badge bg-success-light text-success text-[12px] font-medium">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-badge bg-primary/10 text-primary text-[12px] font-medium">
             Active
           </span>
         )}
@@ -151,7 +151,7 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
 
       {/* Actions */}
       <div className="w-[48px] flex-shrink-0 flex justify-end">
-        <button className="w-[28px] h-[28px] rounded-badge flex items-center justify-center text-text-muted hover:bg-[#F3F4F6] hover:text-[#374151] transition-all duration-150">
+        <button className="w-[32px] h-[32px] rounded-full flex items-center justify-center text-text-muted hover:bg-surface-hover hover:text-text-primary transition-all duration-150">
           <MoreHorizontal size={16} />
         </button>
       </div>
