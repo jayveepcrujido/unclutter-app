@@ -7,6 +7,7 @@ import base64
 import re
 from datetime import datetime, timezone
 import time
+from typing import Optional, cast
 
 IMPORTANT_SENDER_DOMAINS = [
   "google.com", "apple.com", "paypal.com", "stripe.com",
@@ -16,19 +17,31 @@ IMPORTANT_SENDER_DOMAINS = [
 ]
 
 def get_gmail_service(user: User):
-    creds = Credentials(decrypt_token(user.access_token))
+    creds = Credentials(decrypt_token(cast(str, user.access_token)))
     return build('gmail', 'v1', credentials=creds)
 
 def parse_list_unsubscribe(header_value: str):
     # Extract URLs and mailtos from List-Unsubscribe header
     # Example: <https://example.com/unsub>, <mailto:unsub@example.com?subject=unsubscribe>
-    urls = re.findall(r'<(https?://[^>]+)>', header_value)
-    mailtos = re.findall(r'<(mailto:[^>]+)>', header_value)
-    
-    if urls:
-        return 'list-unsubscribe', urls[0]
-    elif mailtos:
-        return 'mailto', mailtos[0]
+    entries = [item.strip() for item in header_value.split(',') if item.strip()]
+    http_options: list[str] = []
+    mailto_options: list[str] = []
+
+    for entry in entries:
+        cleaned = entry.strip()
+        if cleaned.startswith('<') and cleaned.endswith('>'):
+            cleaned = cleaned[1:-1]
+
+        lowered = cleaned.lower()
+        if lowered.startswith('http://') or lowered.startswith('https://'):
+            http_options.append(cleaned)
+        elif lowered.startswith('mailto:'):
+            mailto_options.append(cleaned)
+
+    if http_options:
+        return 'list-unsubscribe', http_options[0]
+    if mailto_options:
+        return 'mailto', mailto_options[0]
     return None, None
 
 def find_unsub_link_in_body(body: str):
@@ -128,15 +141,17 @@ def scan_user_inbox(db: Session, user: User):
         
         try:
             count_results = service.users().messages().list(userId='me', q=f'from:{email}').execute()
-            actual_count = count_results.get('resultSizeEstimate', 1)
+            raw_count: Optional[int] = count_results.get('resultSizeEstimate', 1)
+            actual_count = int(raw_count or 1)
         except:
             actual_count = 1
 
         if existing:
-            existing.last_email_received_at = data['last_received_dt']
-            existing.email_count = actual_count
-            if not existing.sender_name and data['name']:
-                existing.sender_name = data['name']
+            existing.last_email_received_at = data['last_received_dt']  # type: ignore[assignment]
+            existing.email_count = actual_count  # type: ignore[assignment]
+            existing_name = cast(Optional[str], existing.sender_name)
+            if not existing_name and data['name']:
+                existing.sender_name = data['name']  # type: ignore[assignment]
         else:
             new_sub = Subscription(
                 user_id=user.id,
@@ -150,7 +165,7 @@ def scan_user_inbox(db: Session, user: User):
             db.add(new_sub)
             new_found += 1
             
-    user.last_scan_at = datetime.now(timezone.utc).replace(tzinfo=None)
+    user.last_scan_at = datetime.now(timezone.utc).replace(tzinfo=None)  # type: ignore[assignment]
     db.commit()
     
     return {

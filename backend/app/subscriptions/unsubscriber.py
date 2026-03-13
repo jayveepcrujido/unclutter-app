@@ -8,15 +8,84 @@ import time
 from datetime import datetime
 import base64
 from email.message import EmailMessage
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup  # type: ignore[import]
 from urllib.parse import urljoin
 import re
 from typing import Dict, Tuple, Optional, cast
+from .scanner import parse_list_unsubscribe, find_unsub_link_in_body
 
 CONFIRM_KEYWORDS = re.compile(r"(confirm|unsubscribe|yes|continue|submit)", re.IGNORECASE)
 TEXT_INPUT_TYPES = {"text", "email", "password", "search", "tel", "number", "url"}
 
 MANUAL_MESSAGE = "Manual confirmation required"
+
+
+def _extract_body_content(payload: Dict) -> str:
+    if not payload:
+        return ""
+
+    body_data = payload.get('body', {}).get('data')
+    mime_type = (payload.get('mimeType') or '').lower()
+
+    if body_data and mime_type in {'text/html', 'text/plain', ''}:
+        try:
+            return base64.urlsafe_b64decode(body_data).decode('utf-8', errors='ignore')
+        except Exception:
+            return ""
+
+    for part in payload.get('parts', []) or []:
+        part_mime = (part.get('mimeType') or '').lower()
+        data = part.get('body', {}).get('data')
+        if data and part_mime == 'text/html':
+            try:
+                return base64.urlsafe_b64decode(data).decode('utf-8', errors='ignore')
+            except Exception:
+                continue
+
+    for part in payload.get('parts', []) or []:
+        nested = _extract_body_content(part)
+        if nested:
+            return nested
+
+    return ""
+
+
+def _get_latest_unsubscribe_target(service, sender_email: str) -> Tuple[Optional[str], Optional[str]]:
+    if not sender_email:
+        return None, None
+
+    try:
+        query = f'from:{sender_email}'
+        message_refs = service.users().messages().list(userId='me', q=query, maxResults=1).execute().get('messages', [])
+    except Exception:
+        return None, None
+
+    if not message_refs:
+        return None, None
+
+    try:
+        message = service.users().messages().get(userId='me', id=message_refs[0]['id'], format='full').execute()
+    except Exception:
+        return None, None
+
+    payload = message.get('payload', {})
+    headers = payload.get('headers', [])
+    list_unsub = next((h['value'] for h in headers if h['name'].lower() == 'list-unsubscribe'), None)
+    list_unsub_post = next((h['value'] for h in headers if h['name'].lower() == 'list-unsubscribe-post'), None)
+
+    method, link = parse_list_unsubscribe(list_unsub) if list_unsub else (None, None)
+
+    if list_unsub_post and link and 'one-click' in list_unsub_post.lower():
+        method = 'list-unsubscribe-post'
+
+    if not link:
+        body_html = _extract_body_content(payload)
+        if body_html:
+            link = find_unsub_link_in_body(body_html)
+            if link and not method:
+                method = 'link'
+
+    return method, link
 
 
 def get_gmail_service(user: User):
@@ -177,16 +246,31 @@ async def process_unsubscribe(db: Session, user: User, subscription: Subscriptio
     method_value = method_attr or ''
     method_used = method_value
     attempt_time = datetime.utcnow()
+    service = None
 
     try:
+        link_attr = cast(Optional[str], subscription.unsubscribe_link)
+        link_url = link_attr or ""
+
+        try:
+            service = get_gmail_service(user)
+        except Exception:
+            service = None
+
+        if service:
+            refreshed_method, refreshed_link = _get_latest_unsubscribe_target(service, cast(str, subscription.sender_email))
+            if refreshed_link:
+                method_value = refreshed_method or method_value or 'link'
+                method_used = method_value
+                setattr(subscription, 'unsubscribe_link', refreshed_link)
+                setattr(subscription, 'unsubscribe_method', method_value)
+                link_url = refreshed_link
+
         common_headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
             "Accept-Language": "en-US,en;q=0.9",
         }
-
-        link_attr = cast(Optional[str], subscription.unsubscribe_link)
-        link_url = link_attr or ""
 
         if method_value in ['list-unsubscribe', 'link']:
             if not link_url:
@@ -233,7 +317,8 @@ async def process_unsubscribe(db: Session, user: User, subscription: Subscriptio
             if not link_url:
                 error_message = "Missing mailto address"
             else:
-                service = get_gmail_service(user)
+                if service is None:
+                    service = get_gmail_service(user)
                 target = link_url.replace('mailto:', '')
 
                 email_address = target
