@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { RefreshCw } from 'lucide-react';
+import { Menu, RefreshCw } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -13,12 +13,25 @@ interface TopBarProps {
   title: string;
   onScan: () => void;
   isScanning: boolean;
+  onOpenSidebar?: () => void;
 }
 
-export default function TopBar({ title, onScan, isScanning }: TopBarProps) {
+export default function TopBar({ title, onScan, isScanning, onOpenSidebar }: TopBarProps) {
   return (
-    <header className="sticky top-0 z-20 flex h-[64px] items-center justify-between border-b border-border bg-white/85 px-6 shadow-soft backdrop-blur">
-      <h1 className="text-[20px] font-semibold text-text-primary tracking-tight">{title}</h1>
+    <header className="sticky top-0 z-30 flex flex-wrap items-center gap-3 border-b border-border bg-white/90 px-4 py-4 shadow-soft backdrop-blur sm:px-6">
+      <div className="flex flex-1 items-center gap-3">
+        {onOpenSidebar && (
+          <button
+            type="button"
+            onClick={onOpenSidebar}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-text-primary transition-colors duration-150 hover:text-primary lg:hidden"
+            aria-label="Open navigation"
+          >
+            <Menu size={18} />
+          </button>
+        )}
+        <h1 className="text-[18px] font-semibold text-text-primary tracking-tight sm:text-[20px]">{title}</h1>
+      </div>
 
       <button
         onClick={onScan}

@@ -27,6 +27,7 @@ export default function SubscriptionsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isSidebarMobileOpen, setIsSidebarMobileOpen] = useState(false);
   const [toasts, setToasts] = useState<{ id: number, message: string, type: ToastType }[]>([]);
 
   const addToast = (message: string, type: ToastType) => {
@@ -95,19 +96,25 @@ export default function SubscriptionsPage() {
     .map(s => s.sender_name || s.sender_email);
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-[#EAF1F4] via-[#E4EDF4] to-[#F8FBFF] text-text-primary overflow-hidden">
-      <Sidebar onCollapseChange={setIsCollapsed} />
+    <div className="relative min-h-screen bg-gradient-to-br from-[#EAF1F4] via-[#E4EDF4] to-[#F8FBFF] text-text-primary">
+      <Sidebar 
+        onCollapseChange={setIsCollapsed}
+        isMobileOpen={isSidebarMobileOpen}
+        onMobileOpenChange={setIsSidebarMobileOpen}
+      />
       
       <main 
         className={cn(
-          "flex-1 flex flex-col h-screen transition-all duration-200",
-          isCollapsed ? "ml-[64px]" : "ml-[250px]"
+          "flex min-h-screen flex-col transition-all duration-200 lg:h-screen",
+          "lg:ml-[250px]",
+          isCollapsed && "lg:ml-[64px]"
         )}
       >
         <TopBar 
           title="Current Subscriptions" 
           onScan={scan} 
           isScanning={isScanning} 
+          onOpenSidebar={() => setIsSidebarMobileOpen(true)}
         />
 
         <div className={cn(
@@ -117,8 +124,8 @@ export default function SubscriptionsPage() {
           <div className="max-w-6xl mx-auto space-y-8">
 
             {manualCount > 0 && (
-              <div className="flex items-center justify-between gap-4 rounded-[12px] border border-amber-200/70 bg-amber-50/70 p-4 shadow-soft">
-                <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-4 rounded-[12px] border border-amber-200/70 bg-amber-50/70 p-4 shadow-soft sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-1 items-start gap-3">
                   <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
                     <MailX size={20} />
                   </div>
@@ -159,7 +166,7 @@ export default function SubscriptionsPage() {
                 )}
               </div>
 
-              <div className="flex flex-1 items-center justify-end gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                 {selectedIds.length > 0 ? (
                 <button
                   onClick={() => setIsConfirmOpen(true)}
@@ -198,7 +205,7 @@ export default function SubscriptionsPage() {
             {/* Subscription Table */}
             <div className="bg-white/90 rounded-[18px] shadow-soft overflow-hidden border border-border">
               {/* Table Header */}
-              <div className="flex items-center px-8 h-[48px] bg-background text-[11px] font-bold text-text-muted uppercase tracking-widest border-b border-border">
+              <div className="hidden h-[48px] items-center border-b border-border bg-background px-8 text-[11px] font-bold uppercase tracking-widest text-text-muted md:flex">
                 <div className="w-[40px]" />
                 <div className="flex-1 px-4">Sender</div>
                 <div className="w-[100px] px-2 text-center">Emails</div>
@@ -206,6 +213,10 @@ export default function SubscriptionsPage() {
                 <div className="w-[100px] px-2">Method</div>
                 <div className="w-[100px] px-2 text-right">Status</div>
                 <div className="w-[48px]" />
+              </div>
+              <div className="flex items-center justify-between border-b border-border bg-background px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-text-muted md:hidden">
+                <span>All senders</span>
+                <span>{filteredSubscriptions.length}</span>
               </div>
 
               {/* Table Body */}

@@ -66,125 +66,176 @@ export default function SubscriptionRow({ subscription, isSelected, onToggle, is
     ? "ring-2 ring-primary/25 ring-offset-0"
     : "";
 
+  const formattedDate = subscription.last_email_received_at
+    ? new Date(subscription.last_email_received_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+    : '—';
+
+  const emailCount = subscription.email_count ?? 0;
+
+  const renderEmailCount = (extra?: string) => (
+    <span className={cn(
+      "inline-flex items-center px-2 py-0.5 rounded-badge bg-surface-hover text-text-primary text-[12px] font-medium",
+      extra
+    )}>
+      {emailCount} emails
+    </span>
+  );
+
+  const renderMethodBadge = (extra?: string) => {
+    if (isAutoMethod) {
+      return (
+        <span className={cn("inline-flex items-center gap-1 rounded-badge bg-primary/15 px-1.5 py-0.5 text-[12px] font-semibold text-primary", extra)}>
+          <Zap size={12} className="shrink-0" />
+          <span>{methodLabel}</span>
+        </span>
+      );
+    }
+
+    if (isManualLink) {
+      return (
+        <a
+          href={subscription.unsubscribe_link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn("inline-flex items-center gap-1 rounded-badge bg-surface-hover px-1.5 py-0.5 text-[12px] font-semibold text-primary underline decoration-dotted", extra)}
+          title="Open unsubscribe link"
+        >
+          <LinkIcon size={12} className="shrink-0" />
+          <span>{methodLabel}</span>
+        </a>
+      );
+    }
+
+    return (
+      <span className={cn("inline-flex items-center gap-1 rounded-badge bg-surface-hover px-1.5 py-0.5 text-[12px] font-semibold text-text-secondary", extra)}>
+        <LinkIcon size={12} className="shrink-0" />
+        <span>{methodLabel}</span>
+      </span>
+    );
+  };
+
+  const renderStatusBadge = (extra?: string) => {
+    if (isUnsubscribed) {
+      return (
+        <span className={cn("inline-flex items-center gap-1 rounded-badge bg-surface-hover px-2 py-0.5 text-[12px] text-text-secondary", extra)}>
+          <CheckCircle size={14} className="shrink-0 text-success" />
+          <span>Stopped</span>
+        </span>
+      );
+    }
+
+    if (isManual) {
+      if (subscription.unsubscribe_link) {
+        return (
+          <a
+            href={subscription.unsubscribe_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn("inline-flex items-center gap-1 rounded-badge bg-amber-100 px-2 py-0.5 text-[12px] font-bold text-amber-700 transition-colors hover:bg-amber-200", extra)}
+            title={subscription.error_message || 'Complete this unsubscribe manually'}
+          >
+            <AlertCircle size={12} className="shrink-0" />
+            <span>Manual</span>
+          </a>
+        );
+      }
+      return (
+        <span className={cn("inline-flex items-center gap-1 rounded-badge bg-amber-100 px-2 py-0.5 text-[12px] font-bold text-amber-700", extra)} title={subscription.error_message || 'Manual completion required'}>
+          <AlertCircle size={12} className="shrink-0" />
+          <span>Manual</span>
+        </span>
+      );
+    }
+
+    if (isFailed) {
+      return (
+        <span className={cn("inline-flex items-center gap-1 rounded-badge bg-danger-light px-2 py-0.5 text-[12px] font-medium text-danger", extra)} title={subscription.error_message || 'Unsubscribe failed'}>
+          <AlertCircle size={12} className="shrink-0" />
+          <span>Failed</span>
+        </span>
+      );
+    }
+
+    return (
+      <span className={cn("inline-flex items-center rounded-badge bg-primary/10 px-2 py-0.5 text-[12px] font-medium text-primary", extra)}>
+        Active
+      </span>
+    );
+  };
+
+  const actionButton = (
+    <button className="flex h-[32px] w-[32px] items-center justify-center rounded-full text-text-muted transition-all duration-150 hover:bg-surface-hover hover:text-text-primary">
+      <MoreHorizontal size={16} />
+    </button>
+  );
+
   return (
     <div 
       className={cn(
-        "group flex items-center px-6 py-5 transition-all duration-200 relative border-b border-border",
+        "group relative flex flex-col gap-3 border-b border-border px-4 py-4 text-sm transition-all duration-200 md:flex-row md:items-center md:gap-0 md:px-6 md:py-5",
         statusToneClasses,
         selectionClasses,
         isUnsubscribed && "opacity-[0.85]"
       )}
     >
-      {/* Checkbox */}
       {!isReadOnly && (
-        <div className="w-[40px] flex-shrink-0">
+        <div className="flex items-center md:w-[40px] md:flex-shrink-0 md:justify-center">
           <input 
             type="checkbox" 
             checked={isSelected} 
             onChange={onToggle}
-             disabled={isUnsubscribed || isManual}
+            disabled={isUnsubscribed || isManual}
             suppressHydrationWarning={true}
-            className="w-4 h-4 rounded-sm border-border text-primary focus:ring-primary focus:ring-offset-0 transition-all cursor-pointer"
+            className="h-4 w-4 rounded-sm border-border text-primary transition-all focus:ring-primary focus:ring-offset-0"
           />
         </div>
       )}
+      {isReadOnly && <div className="hidden md:block md:w-[40px] md:flex-shrink-0" />}
 
-      {/* Sender */}
-      <div className="flex-1 flex items-center gap-3 min-w-0 pr-4">
-        <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0", avatarBg)}>
-          {initial}
+      <div className="flex flex-1 flex-col gap-3 md:flex-row md:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-3 pr-10 md:pr-4">
+          <div className={cn("flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white", avatarBg)}>
+            {initial}
+          </div>
+          <div className="min-w-0">
+            <h3 className={cn(
+              "text-[14px] font-medium leading-tight truncate", 
+              isUnsubscribed ? "text-text-secondary" : "text-text-primary"
+            )}>
+              {subscription.sender_name || 'Unknown Sender'}
+            </h3>
+            <p className="text-[12px] text-text-secondary truncate">{subscription.sender_email}</p>
+          </div>
         </div>
-        <div className="min-w-0">
-          <h3 className={cn(
-            "text-[14px] font-medium leading-tight truncate", 
-            isUnsubscribed ? "text-text-secondary" : "text-text-primary"
-          )}>
-            {subscription.sender_name || 'Unknown Sender'}
-          </h3>
-          <p className="text-[12px] text-text-secondary truncate">{subscription.sender_email}</p>
+
+        <div className="hidden w-[100px] flex-shrink-0 px-2 md:block">
+          {renderEmailCount()}
+        </div>
+        <div className="hidden w-[120px] flex-shrink-0 px-2 text-[13px] text-text-secondary md:block">
+          {formattedDate}
+        </div>
+        <div className="hidden w-[100px] flex-shrink-0 px-2 md:block">
+          {renderMethodBadge()}
+        </div>
+        <div className="hidden w-[100px] flex-shrink-0 px-2 text-right md:block">
+          {renderStatusBadge()}
         </div>
       </div>
 
-      {/* Emails */}
-      <div className="w-[100px] flex-shrink-0 px-2">
-        <span className="inline-flex items-center px-2 py-0.5 rounded-badge bg-surface-hover text-text-primary text-[12px] font-medium">
-          {subscription.email_count} emails
-        </span>
+      <div className="md:hidden">
+        <div className="flex flex-wrap items-center gap-2 text-[12px] text-text-secondary">
+          {renderEmailCount()}
+          <span className="rounded-badge bg-surface-hover px-2 py-0.5 text-text-secondary">Last {formattedDate}</span>
+          {renderMethodBadge()}
+          {renderStatusBadge()}
+        </div>
       </div>
 
-      {/* Last Received */}
-      <div className="w-[120px] flex-shrink-0 px-2 text-[13px] text-text-secondary">
-        {new Date(subscription.last_email_received_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+      <div className="absolute right-4 top-4 md:hidden">
+        {actionButton}
       </div>
-
-      {/* Method */}
-      <div className="w-[100px] flex-shrink-0 px-2">
-        {isAutoMethod ? (
-          <span className="inline-flex items-center gap-1 text-[12px] px-1.5 py-0.5 rounded-badge bg-primary/15 text-primary">
-            <Zap size={12} className="shrink-0" />
-            <span>{methodLabel}</span>
-          </span>
-        ) : isManualLink ? (
-          <a
-            href={subscription.unsubscribe_link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-[12px] px-1.5 py-0.5 rounded-badge bg-surface-hover text-primary underline decoration-dotted"
-            title="Open unsubscribe link"
-          >
-            <LinkIcon size={12} className="shrink-0" />
-            <span>{methodLabel}</span>
-          </a>
-        ) : (
-          <span className="inline-flex items-center gap-1 text-[12px] px-1.5 py-0.5 rounded-badge bg-surface-hover text-text-secondary">
-            <LinkIcon size={12} className="shrink-0" />
-            <span>{methodLabel}</span>
-          </span>
-        )}
-      </div>
-
-      {/* Status */}
-      <div className="w-[100px] flex-shrink-0 px-2 text-right">
-        {isUnsubscribed ? (
-          <span className="inline-flex items-center gap-1 text-[12px] text-text-secondary px-2 py-0.5 rounded-badge bg-surface-hover">
-            <CheckCircle size={14} className="shrink-0 text-success" />
-            <span>Stopped</span>
-          </span>
-        ) : isManual ? (
-          subscription.unsubscribe_link ? (
-            <a 
-              href={subscription.unsubscribe_link} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-amber-100 text-amber-700 font-bold hover:bg-amber-200 transition-colors"
-              title={subscription.error_message || 'Complete this unsubscribe manually'}
-            >
-              <AlertCircle size={12} className="shrink-0" />
-              <span>Manual</span>
-            </a>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-amber-100 text-amber-700 font-bold" title={subscription.error_message || 'Manual completion required'}>
-              <AlertCircle size={12} className="shrink-0" />
-              <span>Manual</span>
-            </span>
-          )
-        ) : isFailed ? (
-          <span className="inline-flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-badge bg-danger-light text-danger font-medium" title={subscription.error_message || 'Unsubscribe failed'}>
-            <AlertCircle size={12} className="shrink-0" />
-            <span>Failed</span>
-          </span>
-        ) : (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-badge bg-primary/10 text-primary text-[12px] font-medium">
-            Active
-          </span>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div className="w-[48px] flex-shrink-0 flex justify-end">
-        <button className="w-[32px] h-[32px] rounded-full flex items-center justify-center text-text-muted hover:bg-surface-hover hover:text-text-primary transition-all duration-150">
-          <MoreHorizontal size={16} />
-        </button>
+      <div className="hidden w-[48px] flex-shrink-0 justify-end md:flex">
+        {actionButton}
       </div>
     </div>
   );
