@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../hooks/useAuth';
 import { useSubscriptions } from '../../hooks/useSubscriptions';
 import { useScan } from '../../hooks/useScan';
 import Sidebar from '../../components/Sidebar';
@@ -16,10 +18,20 @@ function cn(...inputs: ClassValue[]) {
 }
 
 export default function AnalyticsDashboardPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/');
+    }
+  }, [user, authLoading, router]);
+
   const { subscriptions, loading } = useSubscriptions();
   const { scan, loading: isScanning } = useScan();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSidebarMobileOpen, setIsSidebarMobileOpen] = useState(false);
+
   const [manualCount, unsubscribedCount, activeCount, averageEmails] = useMemo(() => {
     const manual = subscriptions.filter(s => s.status === 'manual_required').length;
     const unsubscribed = subscriptions.filter(s => s.status === 'unsubscribed').length;
@@ -33,6 +45,14 @@ export default function AnalyticsDashboardPage() {
   const successRate = subscriptions.length
     ? Math.round((unsubscribedCount / subscriptions.length) * 100)
     : 0;
+
+  if (authLoading || (!user && !authLoading)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   const focusStats = [
     { label: 'Active senders', value: activeCount, sub: `${subscriptions.length} total indexed`, icon: Activity },
