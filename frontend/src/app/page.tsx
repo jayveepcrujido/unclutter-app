@@ -104,10 +104,10 @@ export default function LandingPage() {
   };
 
   return (
-    <main className="min-h-screen px-6 py-16 md:px-12">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-14">
+    <main className="min-h-screen px-4 py-12 sm:px-6 md:px-12 lg:py-16">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 sm:gap-14">
         <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="glass-panel relative overflow-hidden rounded-[22px] p-8 md:p-10">
+          <div className="glass-panel relative overflow-hidden rounded-[22px] px-6 py-7 sm:p-8 md:p-10">
             <div
               className="pointer-events-none absolute inset-y-0 right-0 w-1/3"
               style={{ background: 'radial-gradient(circle at 50% 20%, rgba(13,148,136,0.2), transparent 55%)' }}
@@ -117,28 +117,28 @@ export default function LandingPage() {
                 <Sparkles size={16} /> Inbox ops control room
               </div>
               <div className="space-y-5">
-                <p className="text-[13px] font-semibold uppercase tracking-[0.35em] text-primary/80">Built for overwhelmed owners</p>
-                <h1 className="text-[42px] leading-tight md:text-[56px]">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.35em] text-primary/80 sm:text-[13px]">Built for overwhelmed owners</p>
+                <h1 className="text-[32px] leading-tight sm:text-[40px] md:text-[56px]">
                   Silence promo chaos and keep critical email visible.
                 </h1>
-                <p className="text-[16px] text-text-secondary md:text-[18px]">
+                <p className="text-[15px] text-text-secondary sm:text-[16px] md:text-[18px]">
                   Unclutter is for operators who manage revenue, finance, or leadership inboxes. We categorize every recurring sender, auto-confirm unsubscribes, and hand you the short list that still needs a manual tap.
                 </p>
               </div>
 
-              <div className="space-y-3 text-[15px] text-text-secondary">
-                <div className="flex items-center gap-3">
+              <div className="space-y-3 text-[14px] text-text-secondary sm:text-[15px]">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <ShieldCheck size={20} className="text-primary" /> OAuth-only, read-only Gmail access
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <Target size={20} className="text-primary" /> Built for EA / ops workflows
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <Users size={20} className="text-primary" /> Covers shared leadership inboxes
                 </div>
               </div>
 
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <button
                   onClick={handleConnect}
                   disabled={loading}
@@ -156,21 +156,21 @@ export default function LandingPage() {
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-[20px] border border-white/40 bg-gradient-to-br from-[#0E947F] via-[#0B7269] to-[#073b36] p-8 text-white shadow-card">
-              <div className="flex items-center justify-between text-white/80">
-                <p className="text-[13px] uppercase tracking-[0.35em]">What you get</p>
-                <BarChart3 size={20} />
+            <div className="rounded-[20px] border border-white/40 bg-gradient-to-br from-[#0E947F] via-[#0B7269] to-[#073b36] p-6 text-white shadow-card sm:p-8">
+              <div className="flex flex-wrap items-center justify-between gap-3 text-white/80">
+                <p className="text-[12px] uppercase tracking-[0.35em] sm:text-[13px]">What you get</p>
+                <BarChart3 size={20} className="shrink-0" />
               </div>
-              <p className="mt-5 text-[28px] leading-snug">Every sender fingerprinted, auto unsubscribes queued, and the rest ready for review.</p>
+              <p className="mt-5 text-[22px] leading-snug sm:text-[26px] lg:text-[28px]">Every sender fingerprinted, auto unsubscribes queued, and the rest ready for review.</p>
               <div className="mt-6 space-y-4">
                 {sampleSenders.map((sender) => (
-                  <div key={sender.email} className="flex items-center justify-between rounded-xl bg-white/10 px-4 py-3 text-sm">
-                    <div>
-                      <p className="font-semibold">{sender.name}</p>
-                      <p className="text-white/70">{sender.email}</p>
+                  <div key={sender.email} className="flex flex-col gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                    <div className="w-full sm:flex-1">
+                      <p className="font-semibold leading-tight">{sender.name}</p>
+                      <p className="text-white/70 break-all text-[13px]">{sender.email}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[13px] uppercase tracking-widest text-white/70">{sender.emails} emails/mo</p>
+                    <div className="text-left sm:text-right">
+                      <p className="text-[12px] uppercase tracking-widest text-white/70 sm:text-[13px]">{sender.emails} emails/mo</p>
                       <span
                         className={cn(
                           'inline-flex items-center gap-1 rounded-full px-3 py-1 text-[12px] font-semibold',
@@ -203,11 +203,11 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="rounded-[20px] border border-border bg-white/92 p-8 shadow-soft">
+        <section className="rounded-[20px] border border-border bg-white/92 px-6 py-7 shadow-soft sm:p-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-[13px] uppercase tracking-[0.35em] text-text-muted">Who this is for</p>
-              <h2 className="text-[32px] font-semibold text-text-primary">If you own outcomes tied to an inbox, Unclutter is built for you.</h2>
+              <p className="text-[12px] uppercase tracking-[0.35em] text-text-muted sm:text-[13px]">Who this is for</p>
+              <h2 className="text-[26px] font-semibold leading-snug text-text-primary sm:text-[32px]">If you own outcomes tied to an inbox, Unclutter is built for you.</h2>
             </div>
             <div className="flex items-center gap-2 text-text-secondary text-[13px]">
               <ShieldCheck size={16} className="text-primary" /> SOC2-ready architecture
@@ -223,7 +223,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="grid gap-8 rounded-[20px] border border-border bg-white/90 p-8 shadow-soft lg:grid-cols-2">
+        <section className="grid gap-8 rounded-[20px] border border-border bg-white/90 px-6 py-7 shadow-soft sm:p-8 lg:grid-cols-2">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-rose-100 bg-rose-50/60 px-3 py-1 text-[12px] font-semibold text-rose-600">
               <AlertTriangle size={14} /> The pain you feel
@@ -254,9 +254,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="grid gap-6 rounded-[20px] border border-border bg-white/90 p-8 shadow-soft lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[18px] border border-border/80 bg-surface px-6 py-6">
-            <p className="text-[13px] uppercase tracking-[0.35em] text-text-muted">Proof & validation</p>
+        <section className="grid gap-6 rounded-[20px] border border-border bg-white/90 px-6 py-7 shadow-soft sm:p-8 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-[18px] border border-border/80 bg-surface px-5 py-5 sm:px-6 sm:py-6">
+            <p className="text-[12px] uppercase tracking-[0.35em] text-text-muted sm:text-[13px]">Proof & validation</p>
             <div className="mt-4 space-y-6">
               {testimonials.length > 0 ? (
                 testimonials.map((testimonial) => (
@@ -277,8 +277,8 @@ export default function LandingPage() {
               )}
             </div>
           </div>
-          <div className="rounded-[18px] border border-dashed border-border/80 bg-surface-hover px-6 py-6">
-            <p className="text-[13px] uppercase tracking-[0.35em] text-text-muted">How it works in action</p>
+          <div className="rounded-[18px] border border-dashed border-border/80 bg-surface-hover px-5 py-5 sm:px-6 sm:py-6">
+            <p className="text-[12px] uppercase tracking-[0.35em] text-text-muted sm:text-[13px]">How it works in action</p>
             <div className="mt-5 space-y-5">
               {[
                 'Secure OAuth connects your Gmail with read-only scope.',
@@ -297,12 +297,12 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="rounded-[22px] border border-border bg-white/95 p-8 shadow-soft text-center">
+        <section className="rounded-[22px] border border-border bg-white/95 px-6 py-8 shadow-soft text-center sm:p-8">
           <div className="mx-auto max-w-3xl space-y-4">
-            <p className="text-[13px] uppercase tracking-[0.35em] text-text-muted">Ready?
+            <p className="text-[12px] uppercase tracking-[0.35em] text-text-muted sm:text-[13px]">Ready?
             </p>
-            <h3 className="text-[34px] font-semibold text-text-primary">Connect Gmail, auto-unsubscribe 70% of the noise, and send the rest to a small manual queue.</h3>
-            <p className="text-[16px] text-text-secondary">
+            <h3 className="text-[26px] font-semibold leading-snug text-text-primary sm:text-[34px]">Connect Gmail, auto-unsubscribe 70% of the noise, and send the rest to a small manual queue.</h3>
+            <p className="text-[15px] text-text-secondary sm:text-[16px]">
               The next scan can be running in under a minute. Keep calendar invites, receipts, and investor notes front-and-center while Unclutter handles the mess behind the scenes.
             </p>
           </div>

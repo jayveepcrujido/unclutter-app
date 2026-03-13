@@ -21,6 +21,7 @@ export default function UnsubscribedPage() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isSidebarMobileOpen, setIsSidebarMobileOpen] = useState(false);
 
   const filteredSubscriptions = subscriptions.filter(s => 
     s.sender_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -28,19 +29,25 @@ export default function UnsubscribedPage() {
   );
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-[#EAF1F4] via-[#E4EDF4] to-[#F8FBFF] text-text-primary overflow-hidden">
-      <Sidebar onCollapseChange={setIsCollapsed} />
+    <div className="relative min-h-screen bg-gradient-to-br from-[#EAF1F4] via-[#E4EDF4] to-[#F8FBFF] text-text-primary">
+      <Sidebar 
+        onCollapseChange={setIsCollapsed}
+        isMobileOpen={isSidebarMobileOpen}
+        onMobileOpenChange={setIsSidebarMobileOpen}
+      />
       
       <main 
         className={cn(
-          "flex-1 flex flex-col h-screen transition-all duration-200",
-          isCollapsed ? "ml-[64px]" : "ml-[250px]"
+          "flex min-h-screen flex-col transition-all duration-200 lg:h-screen",
+          "lg:ml-[250px]",
+          isCollapsed && "lg:ml-[64px]"
         )}
       >
         <TopBar 
           title="Unsubscribed" 
           onScan={scan} 
           isScanning={isScanning} 
+          onOpenSidebar={() => setIsSidebarMobileOpen(true)}
         />
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-8 md:p-10">
@@ -73,13 +80,18 @@ export default function UnsubscribedPage() {
             {/* History Table */}
             <div className="overflow-hidden rounded-[18px] border border-border bg-white/90 shadow-soft">
               {/* Table Header */}
-              <div className="flex h-[48px] items-center px-8 text-[11px] font-bold uppercase tracking-[0.35em] text-text-muted border-b border-border bg-background">
+              <div className="hidden h-[48px] items-center border-b border-border bg-background px-8 text-[11px] font-bold uppercase tracking-[0.35em] text-text-muted md:flex">
+                <div className="w-[40px]" />
                 <div className="flex-1 px-4">Sender</div>
                 <div className="w-[100px] px-2 text-center">Emails</div>
                 <div className="w-[120px] px-2">Unsubscribed On</div>
                 <div className="w-[100px] px-2">Method</div>
                 <div className="w-[100px] px-2 text-right">Status</div>
                 <div className="w-[48px]" />
+              </div>
+              <div className="flex items-center justify-between border-b border-border bg-background px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-text-muted md:hidden">
+                <span>History</span>
+                <span>{filteredSubscriptions.length}</span>
               </div>
 
               {/* Table Body */}

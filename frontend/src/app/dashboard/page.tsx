@@ -19,6 +19,7 @@ export default function AnalyticsDashboardPage() {
   const { subscriptions, loading } = useSubscriptions();
   const { scan, loading: isScanning } = useScan();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isSidebarMobileOpen, setIsSidebarMobileOpen] = useState(false);
   const [manualCount, unsubscribedCount, activeCount, averageEmails] = useMemo(() => {
     const manual = subscriptions.filter(s => s.status === 'manual_required').length;
     const unsubscribed = subscriptions.filter(s => s.status === 'unsubscribed').length;
@@ -54,16 +55,26 @@ export default function AnalyticsDashboardPage() {
   }, [subscriptions]);
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-[#EAF1F4] via-[#E4EDF4] to-[#F8FBFF] text-text-primary overflow-hidden">
-      <Sidebar onCollapseChange={setIsCollapsed} />
+    <div className="relative min-h-screen bg-gradient-to-br from-[#EAF1F4] via-[#E4EDF4] to-[#F8FBFF] text-text-primary">
+      <Sidebar 
+        onCollapseChange={setIsCollapsed}
+        isMobileOpen={isSidebarMobileOpen}
+        onMobileOpenChange={setIsSidebarMobileOpen}
+      />
 
       <main 
         className={cn(
-          'flex-1 flex flex-col h-screen transition-all duration-200',
-          isCollapsed ? 'ml-[64px]' : 'ml-[250px]'
+          'flex min-h-screen flex-col transition-all duration-200 lg:h-screen',
+          'lg:ml-[250px]',
+          isCollapsed && 'lg:ml-[64px]'
         )}
       >
-        <TopBar title="Intelligence Dashboard" onScan={scan} isScanning={isScanning} />
+        <TopBar 
+          title="Intelligence Dashboard" 
+          onScan={scan} 
+          isScanning={isScanning} 
+          onOpenSidebar={() => setIsSidebarMobileOpen(true)}
+        />
 
         <div className={cn('flex-1 overflow-y-auto custom-scrollbar p-8 md:p-10', isScanning && 'opacity-50 pointer-events-none')}>
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
