@@ -11,7 +11,8 @@ import {
   ChevronLeft, 
   ChevronRight,
   LayoutDashboard,
-  X
+  X,
+  MessageSquare
  } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -167,6 +168,33 @@ export default function Sidebar({ onCollapseChange, isMobileOpen, onMobileOpenCh
           </div>
         </div>
       </nav>
+
+      {/* Feedback Link */}
+      <div className="px-3 mb-2">
+        <div className="group relative">
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSc_T4oFMUpL2oCqpmKRv5U0ZVAnSZbrKnI0c3aon0eZ5CFFxw/viewform?usp=sharing&ouid=106940748388620930515"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "flex items-center w-full h-10 px-[12px] rounded-lg transition-all duration-150 overflow-hidden",
+              "text-text-secondary hover:bg-primary/5 hover:text-primary border border-transparent hover:border-primary/10",
+              isCollapsed && "justify-center px-0"
+            )}
+          >
+            <MessageSquare className={cn("shrink-0", isCollapsed ? "w-5 h-5" : "w-4 h-4 mr-3") } />
+            {!isCollapsed && (
+              <span className="text-[14px] font-medium flex-1 truncate">Share Feedback</span>
+            )}
+          </a>
+          
+          {isCollapsed && (
+            <div className="absolute left-[70px] top-1/2 -translate-y-1/2 px-3 py-2 bg-white text-text-primary text-[13px] rounded-[12px] shadow-dropdown opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 border border-border">
+              Share Feedback
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Footer / User Profile */}
       <div className={cn("p-4 flex items-center gap-3", isCollapsed ? "justify-center px-0 relative group" : "")}> 
