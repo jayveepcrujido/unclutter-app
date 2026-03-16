@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
 import {
   Mail,
@@ -11,7 +13,6 @@ import {
   CheckCircle2,
   BarChart3,
   Quote,
-  ArrowRight,
   Inbox,
   Users,
 } from 'lucide-react';
@@ -90,6 +91,14 @@ const sampleSenders = [
 
 export default function LandingPage() {
   const [loading, setLoading] = useState(false);
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, authLoading, router]);
 
   const handleConnect = async () => {
     setLoading(true);
@@ -102,6 +111,14 @@ export default function LandingPage() {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen px-4 py-12 sm:px-6 md:px-12 lg:py-16">

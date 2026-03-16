@@ -34,6 +34,14 @@ export const api = {
     return res.json();
   },
 
+  async getMe() {
+    const res = await fetch(`${API_BASE_URL}/auth/me`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch user');
+    return res.json();
+  },
+
   async getSubscriptions(status?: string, limit = 50, offset = 0): Promise<{ subscriptions: Subscription[], total: number }> {
     const url = new URL(`${API_BASE_URL}/subscriptions/`);
     if (status) url.searchParams.append('status', status);

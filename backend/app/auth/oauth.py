@@ -43,7 +43,7 @@ def get_auth_url():
         "state": state,
         "access_type": "offline",
         "include_granted_scopes": "true",
-        "prompt": "consent"
+        "prompt": "select_account"
     }
     auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"
     return auth_url, state

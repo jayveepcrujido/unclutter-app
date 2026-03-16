@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { api } from '../lib/api';
 
 interface User {
   id: number;
@@ -10,35 +11,38 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  loading: boolean;
   login: (userData: User, token: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function getStoredUser(): User | null {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  const token = localStorage.getItem('unclutter_token');
-  const storedUser = localStorage.getItem('unclutter_user');
-  try {
-    return token && storedUser ? JSON.parse(storedUser) : null;
-  } catch {
-    return null;
-  }
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = getStoredUser();
-    if (!stored) return;
-    const frame = requestAnimationFrame(() => {
-      setUser(stored);
-    });
-    return () => cancelAnimationFrame(frame);
+    async function verifySession() {
+      const token = localStorage.getItem('unclutter_token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const userData = await api.getMe();
+        setUser(userData);
+      } catch (error) {
+        console.error('Session verification failed:', error);
+        localStorage.removeItem('unclutter_token');
+        localStorage.removeItem('unclutter_user');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    verifySession();
   }, []);
 
   const login = (userData: User, token: string) => {
@@ -54,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

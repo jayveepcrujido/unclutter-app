@@ -56,6 +56,14 @@ def get_current_user(auth: HTTPAuthorizationCredentials = Depends(security), db:
         raise credentials_exception
     return user
 
+@router.get("/me")
+def get_me(current_user: User = Depends(get_current_user)):
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "name": current_user.email.split('@')[0] # Basic name extraction
+    }
+
 @router.post("/connect-email")
 def connect_email(request: ConnectEmailRequest):
     auth_url, state = get_auth_url()
